@@ -1,4 +1,7 @@
 {
+  "name": "client-management-system-amcen-ilocos-region",
+  "version": "1.0.0",
+  "description": "Client management system dashboard for AMCen Ilocos Region",
   "scripts": {
     "start": "node server.js"
   },

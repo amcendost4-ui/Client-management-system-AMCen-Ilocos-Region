@@ -31,7 +31,7 @@ app.use(bodyParser.json());
 app.use(express.static(__dirname));
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'Main page pc.html'));
+  res.sendFile(path.join(__dirname, 'client-management-dashboard.html'));
 });
 
 const initDb = () => {

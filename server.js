@@ -6,7 +6,6 @@ const sqlite3 = require('sqlite3').verbose();
 
 const PORT = process.env.PORT || 3000;
 const ADMIN_PASSWORD = '0n3dost4u';
-const DEFAULT_IMAGE_URL = 'https://dummyimage.com/300x180/cccccc/ffffff?text=No+Image';
 const DB_FILE = path.join(__dirname, 'news.db');
 const BOOKINGS_FILE = path.join(__dirname, 'bookings.db');
 
@@ -28,24 +27,7 @@ const bookingsDb = new sqlite3.Database(BOOKINGS_FILE, (err) => {
 
 const app = express();
 app.use(cors());
-app.use(bodyParser.json({ limit: '20mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '20mb' }));
-
-app.get('/', (req, res) => {
-  const filePath = path.join(__dirname, 'Main page pc.html');
-  console.log('Serving homepage from:', filePath);
-  res.sendFile(filePath);
-});
-
-app.get('/index.html', (req, res) => {
-  res.redirect('/');
-});
-
-app.use(express.static(__dirname, { index: false }));
-
-app.get('/index.html', (req, res) => {
-  res.redirect('/');
-});
+app.use(bodyParser.json());
 
 const initDb = () => {
   db.serialize(() => {
@@ -74,7 +56,7 @@ const initDb = () => {
             date: '2026-06-01',
             category: 'General',
             description: 'DOSTXAMCen is dedicated to providing quality education based on Salesian values.',
-            image_path: 'https://dummyimage.com/300x180/4c9ece/ffffff?text=Welcome',
+            image_path: 'https://via.placeholder.com/300x180?text=Welcome',
             created_at: new Date('2026-05-20T08:00:00').getTime()
           },
           {
@@ -82,7 +64,7 @@ const initDb = () => {
             date: '2026-05-28',
             category: 'Events',
             description: 'Our annual sports day was a huge success with students showcasing their athletic talents. Congratulations to all winners!',
-            image_path: 'https://dummyimage.com/300x180/2A9D8F/ffffff?text=Sports+Day',
+            image_path: 'https://via.placeholder.com/300x180?text=Sports+Day',
             created_at: new Date('2026-05-25T10:30:00').getTime()
           },
           {
@@ -90,24 +72,8 @@ const initDb = () => {
             date: '2026-05-20',
             category: 'Facilities',
             description: 'The new library wing is now open with over 5,000 new books and modern study facilities for all students.',
-            image_path: 'https://dummyimage.com/300x180/f67280/ffffff?text=Library',
+            image_path: 'https://via.placeholder.com/300x180?text=Library',
             created_at: new Date('2026-06-01T14:15:00').getTime()
-          },
-          {
-            title: 'DOST Northern Luzon Cluster Powers Up 3D Printing Capabilities Through KICKSTART Training led by DOST-MIRDC at AMCen Ilocos Region',
-            date: '2026-06-30',
-            category: 'DOST',
-            description: 'The Department of Science and Technology (DOST) Northern Luzon Cluster conducted the KICKSTART training on 3D printing and advanced manufacturing technologies.',
-            image_path: 'https://dummyimage.com/300x180/E76F51/ffffff?text=3D+Printing',
-            created_at: new Date('2026-06-30T09:00:00').getTime()
-          },
-          {
-            title: 'Dost amcen WEB',
-            date: '2026-06-22',
-            category: 'DOST',
-            description: 'Official DOST AMCen website launch showcasing advanced manufacturing capabilities and services.',
-            image_path: 'https://dummyimage.com/300x180/8D38C9/ffffff?text=AMCen+WEB',
-            created_at: new Date('2026-06-22T12:00:00').getTime()
           }
         ];
 
@@ -217,7 +183,7 @@ app.post('/api/news', (req, res) => {
     return res.status(400).json({ success: false, message: 'Title, date, category, and description are required' });
   }
 
-  const imagePath = image_path || DEFAULT_IMAGE_URL;
+  const imagePath = image_path || 'https://via.placeholder.com/300x180?text=No+Image';
   const createdAt = Date.now();
 
   db.run(
@@ -540,7 +506,7 @@ app.delete('/api/mails/:id', (req, res) => {
 
 initDb();
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
   console.log(`✓ Backend server running on http://localhost:${PORT}`);
   console.log(`✓ Admin password: ${ADMIN_PASSWORD}`);
   console.log('✓ SQLite database file:', DB_FILE);

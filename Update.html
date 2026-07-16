@@ -135,7 +135,7 @@
       background: none;
       border: none;
       padding: 0;
-      transition: object-fit 0.25s ease, transform 0.25s ease;
+      transition: object-fit 0.25s ease, transform 0.25s ease,
       cursor: zoom-in;
       transform-origin: center center;
     }
@@ -303,18 +303,23 @@
 </div>
 
 <script>
-  // Determine API base URL - use localhost:3000 if opening locally, otherwise relative path
-  const API_BASE = window.location.protocol === 'file:' 
-    ? 'http://127.0.0.1:3000/api' 
-    : '/api';
-  const NEWS_SOURCE = API_BASE + '/news';
+  const API_BASE = 'http://localhost:3000/api';
+  const NEWS_SOURCE = 'news.json';
   const ADMIN_PASSWORD = '0n3dost4u';
-  const DEFAULT_IMAGE_URL = 'https://dummyimage.com/300x180/cccccc/ffffff?text=No+Image';
   const NEWS_STORAGE_KEY = 'amcen_news_items';
-  const LOCAL_NEWS_FALLBACK = [];
+  const LOCAL_NEWS_FALLBACK = [
+    {
+      id: 1781165833695,
+      title: 'Tralalelo tralala',
+      date: '2026-06-11',
+      category: 'DOST',
+      description: 'heloo',
+      image_path: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAApoAAAF3CAYAAAAFPus+AAAAAXNSR0IArs4c6QAAIABJREFUeF7svQeUZVd1Lbr2PvncUKmzWhEFECJZgEQWNlHAA8OQwM8gE55lnmyw+fb7PP4b41GM/7+/QRj42GALi/BMMFYbg0myhIC2CTJGCeVuqaWWutWpct144v5/rn1OVbUAg1B3q7t63TGqq+qGc86e59Tteedacy5FchMEBAFBQBAQBAQBQUAQEAQOAwLqMGxTNikICAKCgCAgCAgCgoAgIAiQEE25CAQBQUAQEAQEAUFAEBAEDgsCQjQPC6yyUUFAEBAEBAFBQBAQBAQBIZpyDQgCgoAgIAgIAoKAICAIHBYEhGgeFlhlo4KAICAICAKCgCAgCAgCQjTlGhAEBAFBQBAQBAQBQUAQOCwICNE8LLDKRgUBQUAQEAQEAUFAEBAEhGjKNSAICAKCgCAgCAgCgoAgcFgQEKJ5WGCVjQoCgoAgIAgIAoKAICAICNGUa0AQEAQEAUFAEBAEBAFB4LAgIETzsMAqGxUEBAFBoEJgclKffYdx8dudT1Q5TU6Wgo0gIAgIAscLAkI0j5czLesUBASBI4rABRdMunvbD0bDfVNrHppZ2JgXRTm6af3eTSc4e+/csiU9ogcjOxMEBAFB4DFCQIjmYwS87FYQEARWJwIgmLuLO8bmZvedOlzonZkl2VlpMjyNXCcLxsZvmli38dozgyfdu3XrZL46EZBVCQKCgCCwjIAQTbkaBAFBQBA4JAgYdfrL39iafmDX43qzM8+iYf98pyifEIbx+ihqNArHSXLl3hW1W387fsL4V2/7xhfmDsluZSOCgCAgCBzFCAjRPIpPjhyaICAIHBsITE5O6n+6Y2bizpuuf3oyO3dhM/Se55XFiWtbrdhzXN9VWqelyRPl7nKjxv8aWXfCp3587ad3HRurk6MUBAQBQeBXR0CI5q+OnbxSEBAEBAFCqXw6uuvk+7bf8xv9udkXtePgvKbvrxuJw7ChHXJNQT5wUg4NjD5QOOHfqvG1f33jd/7+PiIyAqEgIAgIAqsZASGaq/nsytoEAUHgsCJw3m+/o71n+z1n7X/wgf9UJN2XjrVbZ4y1mw2XjBe7mmLtkEeZJZpElBh/euiGn3faaz7+/ec94V5xoB/W0yMbFwQEgaMAASGaR8FJkEMQBASBYw+Bp73lPWsfuvGm58/s3v1KM1x87thIfMKGdWvCVhSoMkvJ10SRUpZoKk2lIkrImxo6jc+p5vjHt17zuR2iaB57512OWBAQBB4ZAkI0Hxle8mxBQBA47hEw6nlv+T/W3H3Dza+Y2vnAxeOxf+6a0eZYu+F5se+SqxUpU5AqcwpMQZ4y5DuGCqVpQMG+oRN+hpqjf/2db37hgeMeSgFAEBAEVj0CQjRX/SmWBQoCgsChQuCiiy5y7lpobprdc+A1s3t3va6pvadtmGg3Jtqx47uGlEnI05ocTWSylHSZUuASOYooJ0UDHezqe/EVZRh/cus3t+w7VMcl2xEEBAFB4GhFQIjm0Xpm5LgEAUHgqELg3Esv9Yr701Me3HHPG4fzvf/U8t0z1o6OxCORr2KPKPKhZKZkoGR6LmkqSeVD8lxNShFlpE1f+TsGbvTRftD63Pcl3uioOr9yMIKAIHB4EBCieXhwla0KAoLAKkLggslJd9937nnC7L49b0k6CxeG2j1lohUH7TCkZuhS6BhqhA6pMqE8HVIY+OQpIlWk5DpESikalKbsKve2gd/80KI38eUffPVTnVUEkSxFEBAEBIGfiYAQTbkwBAFBQBD4DxAAyUxvmTn5tpt//Ptpt/Obo3G4qRWF/lirRU3fp3bkkSqHFHuKPFWQLgsKfJ/ybEAOejQdRRhu3i9M1tX+D/tu44P9/sh1W7d+ZijACwKCgCCw2hEQornaz7CsTxAQBB4NAuqcl1962tQ'
+    }
+  ];
   const BASE_FOR_UPLOADS = '';
   const resolveImageUrl = (path) => {
-    if (!path) return DEFAULT_IMAGE_URL;
+    if (!path) return 'https://via.placeholder.com/300x200?text=No+Image';
     if (path.startsWith('http')) return path;
     return path;
   };
@@ -337,30 +342,8 @@
     }
   };
 
-  const clearStoredNews = () => {
-    localStorage.removeItem(NEWS_STORAGE_KEY);
-    return [];
-  };
-
-  const normalizeNewsItems = (items) => {
-    if (!Array.isArray(items)) return [];
-    return items
-      .map((item) => ({
-        id: item.id,
-        title: item.title || '',
-        date: item.date || '',
-        category: item.category || 'DOST',
-        description: item.description || '',
-        image_path: item.image_path || '',
-        created_at: item.created_at || Date.now()
-      }))
-      .sort((a, b) => Number(b.created_at || 0) - Number(a.created_at || 0));
-  };
-
   const saveStoredNews = (items) => {
-    const normalized = normalizeNewsItems(items);
-    localStorage.setItem(NEWS_STORAGE_KEY, JSON.stringify(normalized));
-    return normalized;
+    localStorage.setItem(NEWS_STORAGE_KEY, JSON.stringify(items));
   };
 
   let editingId = null;
@@ -385,44 +368,6 @@
     document.getElementById('news-image').value = '';
     hiddenImagePathInput.value = '';
   };
-
-  const compressImage = (file) => new Promise((resolve, reject) => {
-    if (!file) {
-      resolve('');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const maxWidth = 900;
-        const maxHeight = 600;
-        let width = img.width;
-        let height = img.height;
-
-        if (width > maxWidth || height > maxHeight) {
-          const ratio = Math.min(maxWidth / width, maxHeight / height, 1);
-          width = Math.round(width * ratio);
-          height = Math.round(height * ratio);
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const context = canvas.getContext('2d');
-        context.drawImage(img, 0, 0, width, height);
-
-        const outputType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
-        const quality = outputType === 'image/png' ? 1 : 0.8;
-        resolve(canvas.toDataURL(outputType, quality));
-      };
-      img.onerror = reject;
-      img.src = event.target.result;
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
 
   const getToday = () => {
     const today = new Date();
@@ -455,44 +400,16 @@
     resetPosition();
   };
 
-  const renderAdminNewsList = (items) => {
-    const adminList = document.getElementById('admin-news-list');
-    adminList.innerHTML = '';
-    if (!items.length) {
-      adminList.innerHTML = '<p>No news items available.</p>';
-      return;
-    }
-    items.forEach(item => adminList.appendChild(createAdminNewsCard(item)));
-  };
-
-  const renderPublicNewsList = (items) => {
-    const newsList = document.getElementById('news-list');
-    newsList.innerHTML = '';
-    if (!items.length) {
-      newsList.innerHTML = '<p>No news items yet. Post one above.</p>';
-      return;
-    }
-    items.forEach(item => newsList.appendChild(createNewsCard(item)));
-  };
-
   const loadAdminNews = async () => {
     const adminList = document.getElementById('admin-news-list');
     adminList.innerHTML = '<p>Loading admin news...</p>';
-    try {
-      const response = await fetch(`${API_BASE}/news`, { cache: 'no-store' });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
-      const items = saveStoredNews(Array.isArray(data) ? data : []);
-      renderAdminNewsList(items);
-      renderPublicNewsList(items);
-      return items;
-    } catch (error) {
-      console.error('Failed to load news from API:', error);
-      const data = getStoredNews();
-      renderAdminNewsList(data);
-      renderPublicNewsList(data);
-      return data;
+    const data = getStoredNews();
+    adminList.innerHTML = '';
+    if (!data.length) {
+      adminList.innerHTML = '<p>No news items available.</p>';
+      return;
     }
+    data.forEach(item => adminList.appendChild(createAdminNewsCard(item)));
   };
 
   const createAdminNewsCard = (item) => {
@@ -530,31 +447,12 @@
 
     card.querySelector('.delete-news').addEventListener('click', async () => {
       if (!confirm('Delete this news item?')) return;
-      try {
-        const latestItems = await loadNews();
-        const currentItem = latestItems.find((newsItem) => String(newsItem.id) === String(item.id));
-        if (!currentItem) {
-          throw new Error('This post is no longer available on the server.');
-        }
-
-        const response = await fetch(`${API_BASE}/news/${currentItem.id}`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: hiddenPasswordInput.value || ADMIN_PASSWORD })
-        });
-        const result = await response.json();
-        if (!response.ok || !result.success) throw new Error(result.message || 'Delete failed');
-
-        const remainingItems = getStoredNews().filter((newsItem) => String(newsItem.id) !== String(currentItem.id));
-        saveStoredNews(remainingItems);
-
-        alert('News deleted');
-        clearEditState();
-        await loadNews();
-      } catch (error) {
-        console.error(error);
-        alert(error.message || 'Failed to delete news');
-      }
+      const items = getStoredNews().filter((newsItem) => String(newsItem.id) !== String(item.id));
+      saveStoredNews(items);
+      alert('News deleted');
+      clearEditState();
+      loadNews();
+      loadAdminNews();
     });
 
     return card;
@@ -594,22 +492,21 @@
     const fileInput = document.getElementById('news-image');
 
     const body = {
+      id: editingId || Date.now(),
       title,
       date,
       category,
-      description: desc,
-      password: hiddenPasswordInput.value || ADMIN_PASSWORD
+      description: desc
     };
 
     if (fileInput.files && fileInput.files[0]) {
       const file = fileInput.files[0];
-      try {
-        body.image_path = await compressImage(file);
+      const reader = new FileReader();
+      reader.onload = async () => {
+        body.image_path = reader.result;
         await sendNews(body);
-      } catch (error) {
-        console.error(error);
-        alert('Failed to process the selected image.');
-      }
+      };
+      reader.readAsDataURL(file);
     } else if (editingId && hiddenImagePathInput.value) {
       body.image_path = hiddenImagePathInput.value;
       await sendNews(body);
@@ -618,26 +515,18 @@
     }
 
     async function sendNews(newsBody) {
-      try {
-        const method = editingId ? 'PUT' : 'POST';
-        const url = editingId ? `${API_BASE}/news/${editingId}` : `${API_BASE}/news`;
-        const response = await fetch(url, {
-          method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newsBody)
-        });
-        const result = await response.json();
-        if (!response.ok || !result.success) throw new Error(result.message || 'News save failed');
-
-        const existingItems = getStoredNews().filter((newsItem) => String(newsItem.id) !== String(result.data.id));
-        saveStoredNews([result.data, ...existingItems]);
-        alert(editingId ? 'News updated successfully.' : 'News posted successfully.');
-        clearEditState();
-        await loadNews();
-      } catch (error) {
-        console.error(error);
-        alert(error.message || 'Failed to save news');
+      const items = getStoredNews();
+      const index = items.findIndex((newsItem) => String(newsItem.id) === String(newsBody.id));
+      if (index >= 0) {
+        items[index] = { ...items[index], ...newsBody };
+      } else {
+        items.unshift(newsBody);
       }
+      saveStoredNews(items);
+      alert(editingId ? 'News updated successfully.' : 'News posted successfully.');
+      clearEditState();
+      loadNews();
+      loadAdminNews();
     }
   });
 
@@ -663,21 +552,13 @@
   const loadNews = async () => {
     const newsList = document.getElementById('news-list');
     newsList.innerHTML = '<p>Loading news...</p>';
-    try {
-      const response = await fetch(`${API_BASE}/news`, { cache: 'no-store' });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
-      const items = saveStoredNews(Array.isArray(data) ? data : []);
-      renderPublicNewsList(items);
-      renderAdminNewsList(items);
-      return items;
-    } catch (error) {
-      console.error('Failed to load news from API:', error);
-      const data = getStoredNews();
-      renderPublicNewsList(data);
-      renderAdminNewsList(data);
-      return data;
+    const data = getStoredNews();
+    newsList.innerHTML = '';
+    if (!data.length) {
+      newsList.innerHTML = '<p>No news items yet. Post one above.</p>';
+      return;
     }
+    data.forEach(item => newsList.appendChild(createNewsCard(item)));
   };
 
   // Initialize form with today's date

@@ -1,10 +1,9 @@
 {
   "scripts": {
-    "start": "node server.js",
-    "postinstall": "npm rebuild sqlite3 --build-from-source"
+    "start": "node server.js"
   },
   "engines": {
-    "node": ">=20 <25"
+    "node": ">=20 <23"
   },
   "dependencies": {
     "body-parser": "^2.3.0",

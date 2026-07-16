@@ -5,64 +5,231 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Client Management Dashboard</title>
   <style>
+    :root { color-scheme: light; }
     body {
       font-family: Arial, sans-serif;
       margin: 0;
       background: #f4f7fb;
       color: #1f2937;
     }
-    .container {
-      max-width: 980px;
-      margin: 40px auto;
+    .page {
+      max-width: 1200px;
+      margin: 24px auto;
       padding: 24px;
       background: white;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
     }
-    h1 { color: #0f766e; }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-      margin-top: 24px;
-    }
-    .card {
-      background: #ecfeff;
-      border: 1px solid #a7f3d0;
-      padding: 16px;
-      border-radius: 10px;
-    }
-    .card h3 { margin-top: 0; }
-    .btn {
-      display: inline-block;
-      margin-top: 16px;
-      padding: 10px 14px;
-      background: #2563eb;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-    }
+    h1 { color: #0f766e; margin-bottom: 8px; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:20px; }
+    .stats { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin:20px 0; }
+    .stat { background:#ecfeff; border:1px solid #a7f3d0; border-radius:10px; padding:14px; }
+    .stat strong { display:block; font-size:22px; margin-top:4px; }
+    .panel { border:1px solid #e5e7eb; border-radius:12px; padding:16px; margin-top:16px; }
+    .toolbar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+    input, select, button { padding:10px 12px; border-radius:8px; border:1px solid #cbd5e1; font-size:14px; }
+    button { background:#2563eb; color:white; cursor:pointer; }
+    button.secondary { background:#64748b; }
+    .bookings { display:grid; gap:10px; }
+    .booking-card { border:1px solid #e5e7eb; border-radius:10px; padding:12px; background:#fcfdff; }
+    .booking-head { display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .badge { display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:bold; color:white; }
+    .badge.pending { background:#f59e0b; }
+    .badge.approved { background:#10b981; }
+    .badge.rejected { background:#ef4444; }
+    .badge.completed { background:#3b82f6; }
+    .muted { color:#64748b; font-size:13px; }
+    .inline { display:inline-flex; gap:8px; align-items:center; }
+    .small { font-size:13px; }
+    .hidden { display:none; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Client Management Dashboard</h1>
-    <p>This page is now restored and available in the website repository.</p>
-    <div class="cards">
-      <div class="card">
-        <h3>Bookings</h3>
-        <p>View and manage incoming booking requests.</p>
+  <div class="page">
+    <div class="topbar">
+      <div>
+        <h1>Client Management Dashboard</h1>
+        <p class="muted">Manage booking requests and admin notifications from the website backend.</p>
       </div>
-      <div class="card">
-        <h3>Clients</h3>
-        <p>Access client information and communication history.</p>
+      <a href="./Main page pc.html" style="text-decoration:none; color:#2563eb; font-weight:bold;">← Back to Home</a>
+    </div>
+
+    <div id="loginPanel" class="panel">
+      <h3>Admin Access</h3>
+      <div class="toolbar">
+        <input id="passwordInput" type="password" placeholder="Admin password" />
+        <button onclick="checkPassword()">Login</button>
       </div>
-      <div class="card">
-        <h3>Status</h3>
-        <p>Track pending, confirmed, and completed requests.</p>
+      <p id="loginMessage" class="muted">Enter the admin password to view bookings and update their status.</p>
+    </div>
+
+    <div id="dashboardPanel" class="hidden">
+      <div class="stats">
+        <div class="stat"><span class="muted">Total Bookings</span><strong id="totalCount">0</strong></div>
+        <div class="stat"><span class="muted">Pending</span><strong id="pendingCount">0</strong></div>
+        <div class="stat"><span class="muted">Approved</span><strong id="approvedCount">0</strong></div>
+        <div class="stat"><span class="muted">Messages</span><strong id="mailCount">0</strong></div>
+      </div>
+
+      <div class="panel">
+        <div class="toolbar">
+          <select id="filterStatus" onchange="loadBookings()">
+            <option value="all">All</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+            <option value="completed">Completed</option>
+          </select>
+          <button class="secondary" onclick="loadBookings()">Refresh</button>
+        </div>
+        <div id="bookingsList" class="bookings"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Recent Notifications</h3>
+        <div id="mailsList" class="bookings"></div>
       </div>
     </div>
-    <a class="btn" href="./Main page pc.html">Back to Home</a>
   </div>
+
+  <script>
+    let adminPassword = '';
+    let bookings = [];
+    let mails = [];
+
+    async function checkPassword() {
+      const input = document.getElementById('passwordInput');
+      const message = document.getElementById('loginMessage');
+      adminPassword = input.value.trim();
+      if (!adminPassword) {
+        message.textContent = 'Please enter the admin password.';
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/admin/check-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: adminPassword })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          document.getElementById('loginPanel').classList.add('hidden');
+          document.getElementById('dashboardPanel').classList.remove('hidden');
+          message.textContent = 'Access granted.';
+          await loadBookings();
+          await loadMails();
+        } else {
+          message.textContent = data.message || 'Login failed.';
+        }
+      } catch (error) {
+        message.textContent = 'Unable to reach the server. Make sure the backend is running.';
+      }
+    }
+
+    async function loadBookings() {
+      const statusFilter = document.getElementById('filterStatus').value;
+      try {
+        const response = await fetch('/api/bookings');
+        const data = await response.json();
+        bookings = Array.isArray(data) ? data : [];
+        const filtered = statusFilter === 'all' ? bookings : bookings.filter(item => item.status === statusFilter);
+        renderBookings(filtered);
+        updateStats();
+      } catch (error) {
+        document.getElementById('bookingsList').innerHTML = '<p class="muted">Unable to load bookings.</p>';
+      }
+    }
+
+    async function loadMails() {
+      try {
+        const response = await fetch('/api/mails');
+        const data = await response.json();
+        mails = Array.isArray(data) ? data : [];
+        renderMails();
+      } catch (error) {
+        document.getElementById('mailsList').innerHTML = '<p class="muted">Unable to load notifications.</p>';
+      }
+    }
+
+    function updateStats() {
+      document.getElementById('totalCount').textContent = bookings.length;
+      document.getElementById('pendingCount').textContent = bookings.filter(b => b.status === 'pending').length;
+      document.getElementById('approvedCount').textContent = bookings.filter(b => b.status === 'approved').length;
+      document.getElementById('mailCount').textContent = mails.length;
+    }
+
+    function renderBookings(items) {
+      const container = document.getElementById('bookingsList');
+      if (!items.length) {
+        container.innerHTML = '<p class="muted">No bookings found.</p>';
+        return;
+      }
+
+      container.innerHTML = items.map(item => `
+        <div class="booking-card">
+          <div class="booking-head">
+            <div>
+              <strong>${item.name || 'Unnamed Client'}</strong><br/>
+              <span class="muted">${item.email || ''} • ${item.phone || ''}</span>
+            </div>
+            <span class="badge ${item.status || 'pending'}">${(item.status || 'pending').toUpperCase()}</span>
+          </div>
+          <div class="small" style="margin-top:8px;">
+            <div class="inline">Service: ${item.service || 'N/A'}</div><br/>
+            <div class="inline">Date: ${item.date || 'N/A'} • Time: ${item.time || 'N/A'}</div><br/>
+            <div class="inline">Message: ${item.message || 'No message provided'}</div>
+          </div>
+          <div class="toolbar" style="margin-top:10px;">
+            <button onclick="updateBookingStatus(${item.id}, 'approved')">Approve</button>
+            <button class="secondary" onclick="updateBookingStatus(${item.id}, 'rejected')">Reject</button>
+            <button class="secondary" onclick="updateBookingStatus(${item.id}, 'completed')">Complete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function updateBookingStatus(id, status) {
+      if (!adminPassword) {
+        alert('Please log in first.');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/bookings/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status, password: adminPassword })
+        });
+        const data = await response.json();
+        if (data.success) {
+          await loadBookings();
+        } else {
+          alert(data.message || 'Status update failed.');
+        }
+      } catch (error) {
+        alert('Unable to update booking status.');
+      }
+    }
+
+    function renderMails() {
+      const container = document.getElementById('mailsList');
+      if (!mails.length) {
+        container.innerHTML = '<p class="muted">No notifications yet.</p>';
+        return;
+      }
+
+      container.innerHTML = mails.slice(0, 8).map(item => `
+        <div class="booking-card">
+          <div class="booking-head">
+            <strong>${item.subject || 'Notification'}</strong>
+            <span class="muted">${item.timestamp || ''}</span>
+          </div>
+          <p class="small" style="margin:6px 0 0;">${item.content || ''}</p>
+        </div>
+      `).join('');
+    }
+  </script>
 </body>
 </html>
